@@ -1,9 +1,92 @@
 = unobservable
 
 Ruby's Observable mixin is often characterized as an Event Handler library.  In reality, it only provides basic
-support for "Property Changed" notifications.  
+support for "Property Changed" notifications.  If an object needs to raise several different types of events,
+then the Observable mixin is the wrong tool for the job.
 
-Unobservable strives to be a general-purpose Event Handler library.
+Unobservable overcomes the limitations of the Observable mixin by allowing objects to own one or more Event
+objects.
+
+== 2-Minute Tour
+
+Instead of a lengthy introduction, here's a short program that demonstrates the main concepts:
+
+
+  require 'unobservable'
+
+
+  class Button
+    # This will add basic support for Events to this class.  As a bonus, it will
+    # also make the attr_event keyword available to us.
+    include Unobservable::Support
+
+    # The attr_event keyword allows us to declare the Events that are available
+    # to the instances of the Button class.
+    attr_event :clicked, :double_clicked
+
+
+    # This method will raise the :clicked event when it is invoked.
+    def click(x, y)
+      raise_event(:clicked, x, y)
+    end
+
+
+    # This method will raise the :double_clicked event when it is invoked
+    def double_click(x, y)
+      raise_event(:double_clicked, x, y)
+    end
+  end
+
+
+  # This class does not publish any events, so it does not need to include
+  # the Unobserable::Support mixin.
+  class Textbox
+    attr_accessor :text
+  end
+
+
+  # Now let's create some instances of these classes
+  button  = Button.new
+  textbox = Textbox.new
+
+
+  # We want to automatically update the textbox's text whenever we click
+  # the button.  So, let's register an event handler:
+  button.clicked.register do |x, y|
+    textbox.text = "You just clicked: #{x} #{y}"
+  end
+
+
+  # We want to print the [x, y] coordinates to the console whenever the
+  # button is double-clicked.  So, we can register an event handler that
+  # just calls the Kernel#puts method directly.
+  button.double_clicked.register Kernel, :puts
+
+
+  # Show time!  First, let's print the textbox's text just to verify
+  # that it's currently null:
+  puts "Before Clicking: #{textbox.text}"
+
+  # Now click the button.  This should raise the :clicked event, which
+  # will invoke its event handlers:
+  button.click(2, 3)
+
+
+  # As expected, the event handler that we registered to the :clicked
+  # event updated the textbox's text.
+  puts "After Clicking: #{textbox.text}"
+
+
+  # Now double-click the button.  This should raise the :double_clicked
+  # event, which will invoke its event handlers.  As a result, the
+  # coordinates will be printed to the console.
+  button.double_click(15, 2)
+
+
+  # We did not register any event handlers that would change the textbox
+  # when the button was double-clicked.  Therefore, we should find that
+  # the textbox's text has remained unchanged.
+  puts "After Double-Clicking: #{textbox.text}"
 
 
 == Usage
