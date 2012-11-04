@@ -63,6 +63,11 @@ module Unobservable
     end
 
     private
+    def raise_event(name, *args, &block)
+      event(name).call(*args, &block)
+    end
+    
+    
     def unobservable_events_map
       @unobservable_events_map ||= initialize_unobservable_events_map(self.class)
     end
