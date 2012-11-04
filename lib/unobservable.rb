@@ -2,6 +2,15 @@ require 'set'
 
 module Unobservable
 
+  # Unobservable is designed so that it will not interfere with
+  # existing classes.  Rather than injecting an instance_events
+  # method directly into Module, we have chosen to externalize
+  # this logic.
+  #
+  # In short: instance_events_for produces a list of instance
+  #           events for any module regardless of whether or
+  #           not that module includes the Unobservable::ModuleSupport
+  #           mixin.
   def self.instance_events_for(mod, include_supers = true)
     raise TypeError, "Only modules and classes can have instance_events" unless mod.is_a? Module
 
@@ -25,6 +34,12 @@ module Unobservable
   end
 
   module ModuleSupport
+    
+    # Returns the list of instance events that are associated with the
+    # module or class.  If include_supers = true, then the list of events
+    # will also include events defined in superclasses and included modules.
+    # Otherwise, instance_events will only return the events defined explicitly
+    # by this module or class.  By default, include_supers = true .
     def instance_events(include_supers = true)
       if include_supers == false
         @unobservable_instance_events ||= Set.new
@@ -36,6 +51,8 @@ module Unobservable
 
 
     private
+    
+    # 
     def attr_event(*names)
       @unobservable_instance_events ||= Set.new
       
@@ -150,6 +167,7 @@ module Unobservable
     end
 
 
+    
     # Pass the specific arguments / block to all of the
     # event handlers.  Return true if there was at least
     # 1 event handler; return false otherwise.
