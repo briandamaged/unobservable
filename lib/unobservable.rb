@@ -1,14 +1,71 @@
-require 'memoize'
-
-include Memoize
+require 'set'
 
 module Unobservable
-  
 
-  
+  module ModuleSupport
+    def instance_events(include_supers = true)
+      @unobservable_instance_events ||= Set.new
+
+      retval = @unobservable_instance_events.to_a
+      return retval
+    end
+
+    private
+    def attr_event(*names)
+      @unobservable_instance_events ||= Set.new
+      
+      names.each do |n|
+        @unobservable_instance_events.add(n.to_sym)
+        define_method n do
+          return event(n)
+        end
+      end
+      
+      return @unobservable_instance_events.to_a
+    end
+  end
+
+
+
+
+
+  module Support
+
+    def self.included(other_mod)
+      other_mod.extend ModuleSupport
+    end
+
+    def events
+      unobservable_events_map.keys
+    end
+    
+    def event(name)
+      unobservable_events_map[name]
+    end
+
+    private
+    def unobservable_events_map
+      @unobservable_events_map ||= initialize_unobservable_events_map(self.class)
+    end
+
+
+    def initialize_unobservable_events_map(clazz)
+      retval = {}
+      if clazz.respond_to? :instance_events
+        clazz.instance_events.each do |e|
+          retval[e] = Event.new
+        end
+      end
+
+      return retval
+    end
+  end
+
+
+
   class Event
     attr_reader :handlers
-    
+
     def initialize
       @handlers = []
     end
@@ -26,10 +83,10 @@ module Unobservable
       elsif args.size == 2
         return args[0].method(args[1])
       end
-      
+
       raise ArgumentError, "Unable to create an event handler using the given arguments"
     end
-    
+
     # Registers the given event handler so that it will be
     # invoked when the event is raised.
     def register(*args, &block)
@@ -49,8 +106,8 @@ module Unobservable
         return nil
       end
     end
-    
-    
+
+
     # Pass the specific arguments / block to all of the
     # event handlers.  Return true if there was at least
     # 1 event handler; return false otherwise.
@@ -62,12 +119,12 @@ module Unobservable
         @handlers.each do |h|
           h.call(*args, &block)
         end
-        
+
         return true
       end
     end
-  
-    
+
+
   end
-  
+
 end
