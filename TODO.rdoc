@@ -1,0 +1,5 @@
+= TODO
+
+* Add support for singleton events
+* Figure out a decent way to restrict access to Unobservable::Event#call to encourage proper encapsulation.
+
