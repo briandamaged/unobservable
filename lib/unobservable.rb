@@ -1,5 +1,10 @@
+require 'memoize'
+
+include Memoize
 
 module Unobservable
+  
+
   
   class Event
     attr_reader :handlers
@@ -25,6 +30,8 @@ module Unobservable
       raise ArgumentError, "Unable to create an event handler using the given arguments"
     end
     
+    # Registers the given event handler so that it will be
+    # invoked when the event is raised.
     def register(*args, &block)
       h = handler_for(*args, &block)
       @handlers << h
@@ -44,6 +51,9 @@ module Unobservable
     end
     
     
+    # Pass the specific arguments / block to all of the
+    # event handlers.  Return true if there was at least
+    # 1 event handler; return false otherwise.
     def call(*args, &block)
       if @handlers.empty?
         return false
@@ -56,7 +66,7 @@ module Unobservable
         return true
       end
     end
-    
+  
     
   end
   
