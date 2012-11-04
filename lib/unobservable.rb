@@ -26,9 +26,8 @@ module Unobservable
 
   module ModuleSupport
     def instance_events(include_supers = true)
-      @unobservable_instance_events ||= Set.new
-
       if include_supers == false
+        @unobservable_instance_events ||= Set.new
         return @unobservable_instance_events.to_a
       else
         return Unobservable.instance_events_for(self, true)
