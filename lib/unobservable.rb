@@ -114,6 +114,7 @@ module Unobservable
 
 
 
+  # Minimalistic Event implementation
   class Event
     attr_reader :handlers
 
@@ -147,6 +148,10 @@ module Unobservable
     end
 
 
+    # Removes a single instance of the specified event handler
+    # from the list of event handlers.  Therefore, if you've
+    # registered the same event handler 3 times, then you will
+    # need to unregister it 3 times as well.
     def unregister(*args, &block)
       h = handler_for(*args, &block)
       index = @handlers.index(h)
