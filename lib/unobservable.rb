@@ -2,13 +2,39 @@ require 'set'
 
 module Unobservable
 
+  def self.instance_events_for(mod, include_supers = true)
+    raise TypeError, "Only modules and classes can have instance_events" unless mod.is_a? Module
+
+    contributors = [mod]
+    if include_supers
+      contributors += mod.included_modules
+      contributors += mod.ancestors[1...-1] if mod.is_a? Class
+    end
+
+    retval = Set.new
+    
+    contributors.each do |c|
+      if c.instance_variable_defined? :@unobservable_instance_events
+        c.instance_variable_get(:@unobservable_instance_events).each do |e|
+          retval.add(e)
+        end
+      end
+    end
+    
+    return retval.to_a
+  end
+
   module ModuleSupport
     def instance_events(include_supers = true)
       @unobservable_instance_events ||= Set.new
 
-      retval = @unobservable_instance_events.to_a
-      return retval
+      if include_supers == false
+        return @unobservable_instance_events.to_a
+      else
+        return Unobservable.instance_events_for(self, true)
+      end
     end
+
 
     private
     def attr_event(*names)
@@ -24,7 +50,6 @@ module Unobservable
       return @unobservable_instance_events.to_a
     end
   end
-
 
 
 
@@ -59,6 +84,7 @@ module Unobservable
 
       return retval
     end
+    
   end
 
 
@@ -126,5 +152,9 @@ module Unobservable
 
 
   end
+  
+
 
 end
+
+
