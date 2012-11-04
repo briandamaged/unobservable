@@ -7,9 +7,31 @@ then the Observable mixin is the wrong tool for the job.
 Unobservable overcomes the limitations of the Observable mixin by allowing objects to own one or more Event
 objects.
 
+== 2-Second Tour
+
+  require 'unobservable'
+
+
+  class Button
+    include Unobservable::Support
+
+    attr_event :clicked
+
+    def click(x, y)
+      raise_event(:clicked, x, y)
+    end
+  end
+
+
+  button  = Button.new
+  button.clicked.register {|x, y| puts "You just clicked: #{x} #{y}"}
+
+  button.click(2, 3)
+
+
 == 2-Minute Tour
 
-Instead of a lengthy introduction, here's a short program that demonstrates the main concepts:
+Now here's a slightly-longer demonstration of Unobservable.  This time, I even included comments!
 
 
   require 'unobservable'
