@@ -2,15 +2,10 @@ require 'set'
 
 module Unobservable
 
-  # Unobservable is designed so that it will not interfere with
-  # existing classes.  Rather than injecting an instance_events
-  # method directly into Module, we have chosen to externalize
-  # this logic.
-  #
-  # In short: instance_events_for produces a list of instance
-  #           events for any module regardless of whether or
-  #           not that module includes the Unobservable::ModuleSupport
-  #           mixin.
+  # Produces a list of instance events for any module regardless of whether or
+  # not that module includes the Unobservable::ModuleSupport mixin.  If
+  # include_supers = true, then the list will also contain instance events
+  # defined by superclasses and included modules.  By default, include_supers = true
   def self.instance_events_for(mod, include_supers = true)
     raise TypeError, "Only modules and classes can have instance_events" unless mod.is_a? Module
 
@@ -33,26 +28,22 @@ module Unobservable
     return retval.to_a
   end
 
+
+
+  # This module is a mixin that provides support for "instance events".
   module ModuleSupport
     
-    # Returns the list of instance events that are associated with the
-    # module or class.  If include_supers = true, then the list of events
-    # will also include events defined in superclasses and included modules.
-    # Otherwise, instance_events will only return the events defined explicitly
-    # by this module or class.  By default, include_supers = true .
+    # This is just a shortcut for Unobservable#instance_events_for .   It passes
+    # in self as the first argument.
     def instance_events(include_supers = true)
-      if include_supers == false
-        @unobservable_instance_events ||= Set.new
-        return @unobservable_instance_events.to_a
-      else
-        return Unobservable.instance_events_for(self, true)
-      end
+      Unobservable.instance_events_for(self, include_supers)
     end
 
 
     private
     
-    # 
+    # This helper method is similar to attr_reader and attr_accessor.  It allows
+    # for instance events to be declared inside the body of the class.
     def attr_event(*names)
       @unobservable_instance_events ||= Set.new
       
@@ -65,6 +56,7 @@ module Unobservable
       
       return @unobservable_instance_events.to_a
     end
+
   end
 
 
