@@ -1,9 +1,82 @@
 = unobservable
 
 Ruby's Observable mixin is often characterized as an Event Handler library.  In reality, it only provides basic
-support for "Property Changed" notifications.
+support for "Property Changed" notifications.  
 
 Unobservable strives to be a general-purpose Event Handler library.
+
+
+== Usage
+
+=== Adding Event support to classes
+
+Support for events can be added on a per-class basis by including the Unobservable::Support module in the desired classes.
+For example:
+
+  require 'unobservable'
+
+  class Button
+    include Unobservable::Support
+  end
+
+Now the Button class, as well as all of its subclasses, will have support for events.  Alternatively, we might
+decide that we'd like to add support for events to EVERY object.  This can be achieved as follows:
+
+  require 'unobservable'
+
+  # Add event support to EVERY object
+  class Object
+    include Unobservable::Support
+  end
+
+
+=== Declaring Events
+
+Once a class has been given support for events, you can declare events using the attr_event keyword.  For instance:
+
+  require 'unobservable'
+
+  class Button
+    include Unobservable::Support
+    
+    attr_event :clicked, :double_clicked
+  end
+
+
+Like its cousins attr_reader and attr_accessor, attr_event does not actually instantiate any fields when it is invoked.
+Instead, it just declares which events will exist on *instances* of the class:
+
+  x = Button.new
+  y = Button.new
+  
+  # True.  x.clicked returns the same Event instance
+  #        each time it is invoked
+  x.clicked === x.clicked
+  
+  # False.  x and y each have their own instance of
+  #         the Event.
+  x.clicked === y.clicked
+
+=== Accessing Events
+
+The attr_event keyword will automatically create a getter property for each event.  Therefore, you can access events
+as if they were regular attributes:
+
+   > x = Button.new
+   => #<Button:0x007fa90c0f1e20>
+
+   > x.clicked
+   => #<Unobservable::Event:0x007fa90c0edeb0 @handlers=[]>
+
+Events can also be retrieved via the Unobservable::Support#event method:
+
+   > x.event(:clicked)
+   => #<Unobservable::Event:0x007fa90c0edeb0 @handlers=[]>
+
+You can retrieve a complete listing of the events supported by an object by invoking the Unobserable::Support#events method:
+
+   > x.events
+   => [:clicked, :double_clicked]
 
 == Copyright
 
