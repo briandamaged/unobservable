@@ -52,12 +52,7 @@ module Unobservable
 
 
 
-
-  module Support
-
-    def self.included(other_mod)
-      other_mod.extend ModuleSupport
-    end
+  module ObjectSupport
 
     def events
       unobservable_events_map.keys
@@ -84,6 +79,23 @@ module Unobservable
       return retval
     end
     
+  end
+  
+  
+  # Typically, when you add support for Events to a class, you also want
+  # support for the handy attr_event keyword.  So, including this module
+  # is equivalent to the following:
+  #
+  # class MyClass
+  #   extend  Unobservable::ModuleSupport  # Get support for the attr_event keyword
+  #   include Unobservable::ObjectSupport  # Get support for the instance methods
+  # end
+  module Support
+    include ObjectSupport
+    
+    def self.included(other_mod)
+      other_mod.extend ModuleSupport
+    end
   end
 
 
