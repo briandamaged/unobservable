@@ -19,6 +19,8 @@ module Unobservable
   end
 
 
+  # Produces a list of instance events that are explicitly defined by at least
+  # one of the specified modules.
   def self.collect_instance_events_defined_by(contributors)
     retval = Set.new
     
@@ -68,15 +70,23 @@ module Unobservable
 
   module Support
 
+    # When an individual object EXTENDS the Support module, then
+    # we must ensure that the object's singleton class EXTENDS
+    # ModuleSupport.
     def self.extended(obj)
       obj.singleton_class.extend ModuleSupport
     end
     
+    # When a class/module INCLUDES the Support module, then we
+    # must ensure that the class/module also EXTENDS ModuleSupport.
     def self.included(other_mod)
       other_mod.extend ModuleSupport
     end
     
 
+    # Obtains the list of events that are unique to this object.
+    # If all = true, then this list will also include events that
+    # were defined within a module that the object extended.
     def singleton_events(all = true)
       if all
         contributors  = self.singleton_class.included_modules
@@ -88,15 +98,21 @@ module Unobservable
       end
     end
 
-    
+    # Defines an event directly on the object.
     def define_singleton_event(*name)
       self.singleton_class.send(:attr_event, *name)
     end
 
+    # Obtains the names of the events that are supported by this object.  If
+    # all = false, then this list will only contain the names of the instance
+    # events that are explicitly defined by the object's class.
     def events(all = true)
       self.singleton_class.instance_events(all)
     end
     
+    
+    # Returns the Event that has the specified name.  A NameError will be raised
+    # if the object does not define any event that has the given name.
     def event(name)
       @unobservable_events_map ||= {}
       e = @unobservable_events_map[name]
@@ -112,6 +128,9 @@ module Unobservable
     end
 
     private
+    
+    # Calls the Event that has the specified name.  A NameError will be raised
+    # if the object does not define any event that has the given name.
     def raise_event(name, *args, &block)
       event(name).call(*args, &block)
     end
