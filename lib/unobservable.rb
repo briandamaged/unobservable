@@ -15,6 +15,11 @@ module Unobservable
       contributors += mod.ancestors[1...-1] if mod.is_a? Class
     end
 
+    self.collect_instance_events_defined_by(contributors)
+  end
+
+
+  def self.collect_instance_events_defined_by(contributors)
     retval = Set.new
     
     contributors.each do |c|
@@ -29,18 +34,16 @@ module Unobservable
   end
 
 
-
   # This module is a mixin that provides support for "instance events".
   module ModuleSupport
     
-    # This is just a shortcut for Unobservable#instance_events_for .   It passes
-    # in self as the first argument.
-    def instance_events(include_supers = true)
-      Unobservable.instance_events_for(self, include_supers)
+    def instance_events(all = true)
+      Unobservable.instance_events_for(self, all)
     end
 
 
     private
+    
     
     # This helper method is similar to attr_reader and attr_accessor.  It allows
     # for instance events to be declared inside the body of the class.
@@ -48,20 +51,40 @@ module Unobservable
       @unobservable_instance_events ||= Set.new
       
       names.each do |n|
-        @unobservable_instance_events.add(n.to_sym)
         define_method n do
           return event(n)
         end
+        @unobservable_instance_events.add(n.to_sym)
       end
       
       return @unobservable_instance_events.to_a
     end
+    
+    alias :define_event :attr_event
 
   end
 
 
 
   module ObjectSupport
+
+    def singleton_events(all = true)
+      if all
+        contributors  = self.singleton_class.included_modules
+        contributors -= self.class.included_modules
+        contributors.push self.singleton_class
+        Unobservable.collect_instance_events_defined_by(contributors)
+      else
+        Unobservable.collect_instance_events_defined_by([self.singleton_class])
+      end
+    end
+
+    
+    def define_singleton_event(*name)
+      self.singleton_class.send(:attr_event, *name)
+    end
+    
+
 
     def events
       unobservable_events_map.keys
