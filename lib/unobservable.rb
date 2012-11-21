@@ -83,39 +83,30 @@ module Unobservable
     def define_singleton_event(*name)
       self.singleton_class.send(:attr_event, *name)
     end
-    
 
-
-    def events
-      unobservable_events_map.keys
+    def events(all = true)
+      self.singleton_class.instance_events(all)
     end
     
     def event(name)
-      unobservable_events_map[name]
+      @unobservable_events_map ||= {}
+      e = @unobservable_events_map[name]
+      if not e
+        if self.events.include? name
+          e = Event.new
+          @unobservable_events_map[name] = e
+        else
+          raise NameError, "Undefined event: #{name}"
+        end
+      end
+      return e
     end
 
     private
     def raise_event(name, *args, &block)
       event(name).call(*args, &block)
     end
-    
-    
-    def unobservable_events_map
-      @unobservable_events_map ||= initialize_unobservable_events_map(self.class)
-    end
 
-
-    def initialize_unobservable_events_map(clazz)
-      retval = {}
-      if clazz.respond_to? :instance_events
-        clazz.instance_events.each do |e|
-          retval[e] = Event.new
-        end
-      end
-
-      return retval
-    end
-    
   end
   
   
