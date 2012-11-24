@@ -6,13 +6,20 @@ module Unobservable
   # not that module includes the Unobservable::ModuleSupport mixin.  If
   # include_supers = true, then the list will also contain instance events
   # defined by superclasses and included modules.  By default, include_supers = true
-  def self.instance_events_for(mod, include_supers = true)
+  def self.instance_events_for(mod, all = true)
     raise TypeError, "Only modules and classes can have instance_events" unless mod.is_a? Module
 
     contributors = [mod]
-    if include_supers
+    if all
       contributors += mod.included_modules
-      contributors += mod.ancestors[1...-1] if mod.is_a? Class
+      if mod.is_a? Class
+        ancestors = mod.ancestors
+        if ancestors[0] == mod
+          contributors += ancestors[1..-1]
+        else
+          contributors += ancestors
+        end
+      end
     end
 
     self.collect_instance_events_defined_by(contributors)
