@@ -32,13 +32,13 @@ Rake::TestTask.new(:test) do |test|
   test.verbose = true
 end
 
-# require 'rcov/rcovtask'
-# Rcov::RcovTask.new do |test|
-#   test.libs << 'test'
-#   test.pattern = 'test/**/test_*.rb'
-#   test.verbose = true
-#   test.rcov_opts << '--exclude "gems/*"'
-# end
+
+require 'rspec/core'
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new(:spec) do |spec|
+  spec.pattern = FileList['spec/**/*_spec.rb']
+end
+
 
 task :default => :test
 
