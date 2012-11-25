@@ -13,11 +13,10 @@ module Unobservable
     if all
       contributors += mod.included_modules
       if mod.is_a? Class
-        ancestors = mod.ancestors
-        if ancestors[0] == mod
-          contributors += ancestors[1..-1]
-        else
-          contributors += ancestors
+        parent = mod.superclass
+        while parent
+          contributors.push parent
+          parent = parent.superclass
         end
       end
     end
