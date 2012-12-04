@@ -6,13 +6,19 @@ describe Unobservable do
 
   describe "#instance_events_for" do
     
+    it "raises a type error when it receives a non-Module" do
+      expect do
+        Unobservable.instance_events_for(Object.new)
+      end.to raise_error(TypeError)
+    end
+    
+
 
     it "returns an empty list when given a Module that does not support events" do
       plain_module = Module.new
       Unobservable.instance_events_for(plain_module, true).should be_empty
       Unobservable.instance_events_for(plain_module, false).should be_empty
     end
-
 
 
     it "returns an empty list when given a Module that does not have any instance events defined" do
