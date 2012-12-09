@@ -25,6 +25,16 @@ module Unobservable
         p = Proc.new {}
         e.handler_for(&p).should == p
       end
+      
+      it "can use a specified method on an object as an event handler" do
+        x = Object.new
+        e.handler_for(x, :class).should == x.method(:class)
+      end
+      
+      
+      it "raises an ArgumentError when it receives 3 or more arguments" do
+        expect{ e.handler_for(Proc.new, :foo, :bar) }.to raise_error(ArgumentError)
+      end
 
 
     end
