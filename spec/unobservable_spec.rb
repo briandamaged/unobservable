@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+include Unobservable::SpecHelper
+
 
 shared_examples_for "instance event container" do
   
@@ -15,10 +17,7 @@ shared_examples_for "instance event container" do
   context "Unobservable::Support is included" do
 
     let(:mixin_module) do
-      Module.new do
-        include Unobservable::Support
-        attr_event :one, :two
-      end
+      module_with_instance_events :one, :two
     end
     
     let(:instance_event_container) do
@@ -69,7 +68,6 @@ end
 
 
 describe Unobservable do
-  include Unobservable::SpecHelper
 
   describe "#instance_events_for" do
     
@@ -85,22 +83,15 @@ describe Unobservable do
       module_with_instance_events(:mixin_1, :mixin_2)
     end
     
-    let(:module_that_includes_mixin) do
-      m = mixin_module
-      
-      Module.new do
-        include m
-        include Unobservable::Support
-        attr_event :module_1, :module_2
-      end
-    end
-    
     let(:baseclass) do
       class_with_instance_events(:bc_1, :bc_2)
     end
     
     let(:subclass) do
-      class_with_instance_events(:sc_1, :sc_2, superclass: baseclass)
+      m = mixin_module
+      class_with_instance_events(:sc_1, :sc_2, superclass: baseclass) do
+        include m
+      end
     end
     
     

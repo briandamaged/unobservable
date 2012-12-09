@@ -13,21 +13,29 @@ end
 module Unobservable
   module SpecHelper
     
-    def module_with_instance_events(*names)
-      Module.new do
+    def module_with_instance_events(*names, &block)
+      m = Module.new do
         include Unobservable::Support
         attr_event *names
       end
+      
+      m.class_exec(&block) if block_given?
+      
+      return m
     end
 
-    def class_with_instance_events(*names)
+    def class_with_instance_events(*names, &block)
       args = {superclass: Object}
       args.merge!(names.pop) if names[-1].is_a? Hash
 
-      Class.new(args[:superclass]) do
+      c = Class.new(args[:superclass]) do
         include Unobservable::Support
         attr_event *names
       end
+      
+      c.class_exec(&block) if block_given?
+      
+      return c
     end
     
   end
