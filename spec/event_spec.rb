@@ -120,6 +120,25 @@ module Unobservable
 
     end
     
+    
+    
+    describe "#call" do
+      it "can be called when no event handlers have been registered" do
+        expect{ e.call }.to_not raise_error
+        expect{ e.call 1, 2, 3 }.to_not raise_error
+      end
+      
+      it "passes its arguments to each event handler" do
+        3.times do |i|
+          h = mock("handler #{i}")
+          h.should_receive(:some_method).with("arg1", "arg2")
+          e.register h, :some_method
+        end
+        
+        e.call "arg1", "arg2"
+      end
+    end
+    
   end
   
   
