@@ -165,7 +165,12 @@ module Unobservable
       if block
         return block
       elsif args.size == 1
-        return args[0]
+        candidate = args[0]
+        if candidate.respond_to?(:to_proc)
+          return candidate.to_proc
+        else
+          raise ArgumentError, "The argument does not respond to the #to_proc method"
+        end
       elsif args.size == 2
         return args[0].method(args[1])
       end
