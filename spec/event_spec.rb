@@ -38,6 +38,56 @@ module Unobservable
 
 
     end
+    
+    
+    describe "#register" do
+      
+      it "returns the event handler that was added to the event's list of handlers" do
+        handler = Proc.new {}
+        e.register(handler).should == handler
+      end
+      
+      it "adds an event handler to the event's list of handlers" do
+        handler = Proc.new {}
+        e.handlers.size.should == 0
+        
+        e.register(handler)
+        
+        e.handlers.size.should == 1
+        e.handlers.should include(handler)
+      end
+      
+      it "allows multiple event handlers to be registered to the same event" do
+        h1 = Proc.new { puts "one" }
+        h2 = Proc.new { puts "two" }
+        
+        e.handlers.size.should == 0
+        
+        e.register h1
+        e.register h2
+        
+        e.handlers.size.should == 2
+        e.handlers.should include(h1)
+        e.handlers.should include(h2)
+        
+        h1.should_not == h2
+      end
+      
+      
+      it "allows the same event handler to be registered multiple times" do
+        handler = Proc.new {}
+        
+        e.handlers.size.should == 0
+        
+        3.times { e.register handler }
+        
+        e.handlers.size.should == 3
+        3.times {|i| e.handlers[i].should == handler }
+      end
+      
+    end
   end
   
 end
+
+
