@@ -69,21 +69,7 @@ end
 
 
 describe Unobservable do
-
-  def module_with_instance_events(*names)
-    Module.new do
-      include Unobservable::Support
-      attr_event *names
-    end
-  end
-
-  def class_with_instance_events(*names)
-    Class.new do
-      include Unobservable::Support
-      attr_event *names
-    end
-  end
-
+  include Unobservable::SpecHelper
 
   describe "#instance_events_for" do
     
@@ -96,10 +82,7 @@ describe Unobservable do
   
   describe "#collect_instance_events_defined_by" do
     let(:mixin_module) do
-      Module.new do
-        include Unobservable::Support
-        attr_event :mixin_1, :mixin_2
-      end
+      module_with_instance_events(:mixin_1, :mixin_2)
     end
     
     let(:module_that_includes_mixin) do
@@ -113,19 +96,11 @@ describe Unobservable do
     end
     
     let(:baseclass) do
-      Class.new do
-        include Unobservable::Support
-        attr_event :bc_1, :bc_2
-      end
+      class_with_instance_events(:bc_1, :bc_2)
     end
     
     let(:subclass) do
-      m = module_that_includes_mixin
-
-      Class.new(baseclass) do
-        include m
-        attr_event :sc_1, :sc_2
-      end
+      class_with_instance_events(:sc_1, :sc_2, superclass: baseclass)
     end
     
     
