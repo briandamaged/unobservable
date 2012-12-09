@@ -86,7 +86,44 @@ module Unobservable
       end
       
     end
+    
+    
+    describe "#unregister" do
+
+      it "returns nil when asked to unregister a handler that was never registered" do
+        p = Proc.new {}
+        e.handlers.should_not include(p)
+        e.unregister(p).should be_nil
+      end
+
+      it "returns the handler that was unregistered" do
+        p = Proc.new {}
+        e.register p
+        
+        e.handlers.should include(p)
+        e.unregister(p).should == p
+        e.handlers.should_not include(p)
+      end
+      
+      
+      it "only unregisters 1 occurrence of the specified event handler" do
+        p = Proc.new { "hello" }
+        3.times { e.register p }
+        
+        e.handlers.size.should == 3
+        
+        e.unregister p
+        
+        e.handlers.size.should == 2
+        e.handlers.each{|h| h.should == p}
+      end
+
+    end
+    
   end
+  
+  
+  
   
 end
 
