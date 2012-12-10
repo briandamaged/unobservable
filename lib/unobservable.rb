@@ -53,22 +53,28 @@ module Unobservable
     private
     
     
+    def define_event(name)
+      name = name.to_sym
+      
+      @unobservable_instance_events ||= Set.new
+      if @unobservable_instance_events.include? name
+        return false
+      else
+        define_method name do
+          return event(name)
+        end
+        @unobservable_instance_events.add name
+        return true
+      end
+    end
+    
+    
     # This helper method is similar to attr_reader and attr_accessor.  It allows
     # for instance events to be declared inside the body of the class.
     def attr_event(*names)
-      @unobservable_instance_events ||= Set.new
-      
-      names.each do |n|
-        define_method n do
-          return event(n)
-        end
-        @unobservable_instance_events.add(n.to_sym)
-      end
-      
-      return @unobservable_instance_events.to_a
+      names.each {|n| define_event(n) }
+      return nil
     end
-    
-    alias :define_event :attr_event
 
   end
 
@@ -105,8 +111,8 @@ module Unobservable
     end
 
     # Defines an event directly on the object.
-    def define_singleton_event(*name)
-      self.singleton_class.send(:attr_event, *name)
+    def define_singleton_event(name)
+      self.singleton_class.send(:define_event, name)
     end
 
     # Obtains the names of the events that are supported by this object.  If

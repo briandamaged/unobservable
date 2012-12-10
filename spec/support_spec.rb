@@ -43,6 +43,16 @@ module Unobservable
         obj.singleton_events(false).should include(the_singleton_event)
         expect{ obj.event(the_singleton_event) }.to_not raise_error
       end
+      
+      it "returns True if the object did not already define the event as a singleton event" do
+        obj.define_singleton_event(:foo).should be_true
+      end
+      
+      it "returns False if the object already defined the event as a singleton event" do
+        obj.define_singleton_event(:foo)
+        obj.define_singleton_event(:foo).should be_false
+      end
+      
     end
 
 
