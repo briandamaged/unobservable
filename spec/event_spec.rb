@@ -49,24 +49,23 @@ module Unobservable
       
       it "adds an event handler to the event's list of handlers" do
         handler = Proc.new {}
-        e.handlers.size.should == 0
         
-        e.register(handler)
+        expect do
+          e.register(handler)
+        end.to change{ e.handlers.size }.from(0).to(1)
         
-        e.handlers.size.should == 1
         e.handlers.should include(handler)
       end
       
       it "allows multiple event handlers to be registered to the same event" do
         h1 = Proc.new { puts "one" }
         h2 = Proc.new { puts "two" }
+                
+        expect do
+          e.register h1
+          e.register h2
+        end.to change{ e.handlers.size }.from(0).to(2)
         
-        e.handlers.size.should == 0
-        
-        e.register h1
-        e.register h2
-        
-        e.handlers.size.should == 2
         e.handlers.should include(h1)
         e.handlers.should include(h2)
         
@@ -77,12 +76,11 @@ module Unobservable
       it "allows the same event handler to be registered multiple times" do
         handler = Proc.new {}
         
-        e.handlers.size.should == 0
+        expect do
+          3.times { e.register handler }
+        end.to change{ e.handlers.size }.from(0).to(3)
         
-        3.times { e.register handler }
-        
-        e.handlers.size.should == 3
-        3.times {|i| e.handlers[i].should == handler }
+        e.handlers.each {|h| h.should == handler}
       end
       
     end
@@ -101,7 +99,10 @@ module Unobservable
         e.register p
         
         e.handlers.should include(p)
-        e.unregister(p).should == p
+        expect do
+          e.unregister(p).should == p
+        end.to change{ e.handlers.size }.from(1).to(0)
+        
         e.handlers.should_not include(p)
       end
       
@@ -109,12 +110,9 @@ module Unobservable
       it "only unregisters 1 occurrence of the specified event handler" do
         p = Proc.new { "hello" }
         3.times { e.register p }
+                
+        expect{ e.unregister p }.to change{ e.handlers.size }.from(3).to(2)
         
-        e.handlers.size.should == 3
-        
-        e.unregister p
-        
-        e.handlers.size.should == 2
         e.handlers.each{|h| h.should == p}
       end
 
