@@ -27,7 +27,25 @@ module Unobservable
       end
     end
 
-    
+
+    describe "#define_singleton_event" do
+      
+      it "defines a new singleton event directly on the object" do
+        the_singleton_event = :quux
+        
+        obj.class.instance_events.should_not include(the_singleton_event)
+        obj.singleton_events(false).should_not include(the_singleton_event)
+        expect{ obj.event(the_singleton_event) }.to raise_error
+        
+        expect{ obj.define_singleton_event the_singleton_event }.to change{ obj.singleton_events(false).size }.by(1)
+        
+        obj.class.instance_events.should_not include(the_singleton_event)
+        obj.singleton_events(false).should include(the_singleton_event)
+        expect{ obj.event(the_singleton_event) }.to_not raise_error
+      end
+    end
+
+
     describe "#event" do
       it "raises a NameError when the specified event is not defined" do
         expect{ obj.event(:not_exist) }.to raise_error(NameError)
