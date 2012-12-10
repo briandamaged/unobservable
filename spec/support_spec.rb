@@ -4,7 +4,8 @@ include Unobservable::SpecHelper
 
 module Unobservable
   describe Support do
-    
+    let(:x) { class_with_instance_events(:foo, :bar).new }
+
     context "when included by a module" do
       it "causes the module to extend Unobservable::ModuleSupport" do
         m = Module.new{ include Unobservable::Support }
@@ -26,17 +27,36 @@ module Unobservable
     end
     
     
-    describe "#raise_event" do
-      let(:x) { class_with_instance_events(:foo).new }
-      
-      it "raises a NameError when the specified event does not exist" do
-        expect{ x.send :raise_event, :bar }.to raise_error(NameError)
-        expect{ x.send :raise_event, :bar, 1, 2, 3 }.to raise_error(NameError)
+    describe "#event" do
+      it "raises a NameError when the specified event is not defined" do
+        expect{ x.event(:not_exist) }.to raise_error(NameError)
       end
       
-      it "does not raise an error when the specified event exists" do
-        expect{ x.send :raise_event, :foo }.to_not raise_error
-        expect{ x.send :raise_event, :foo, 1, 2, 3 }.to_not raise_error
+      it "maps different names to different Event instances" do
+        x.event(:foo).should_not === x.event(:bar)
+      end
+      
+      it "maps the same name to the same Event instance" do
+        x.event(:foo).should === x.event(:foo)
+        x.event(:bar).should === x.event(:bar)
+      end
+      
+      
+    end
+    
+    
+    describe "#raise_event" do
+      
+      
+      it "raises a NameError when the specified event is not defined" do
+        expect{ x.send :raise_event, :not_exist }.to raise_error(NameError)
+        expect{ x.send :raise_event, :not_exist, 1, 2, 3 }.to raise_error(NameError)
+      end
+            
+      it "calls the specified event" do
+        args = [1, 2, 3]
+        x.event(:foo).should_receive(:call).with(*args)
+        x.send :raise_event, :foo, *args
       end
       
     end
