@@ -135,6 +135,18 @@ module Unobservable
         
         e.call "arg1", "arg2"
       end
+      
+      
+      it "should invoke each event handler even if one or more event handlers raise an exception." do
+        3.times do |i|
+          h = mock("handler #{i}")
+          h.should_receive(:some_method).with("arg1", "arg2").and_raise(Exception)
+          e.register h, :some_method
+        end
+        
+        expect{ e.call "arg1", "arg2" }.to_not raise_error
+      end
+      
     end
     
   end
