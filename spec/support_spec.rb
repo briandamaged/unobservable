@@ -53,6 +53,12 @@ module Unobservable
         obj.define_singleton_event(:foo).should be_false
       end
       
+      it "creates an instance method that shares the same name as the event" do
+        obj.methods.should_not include(:quux)
+        obj.define_singleton_event :quux
+        obj.methods.should include(:quux)
+      end
+      
     end
 
 
