@@ -53,16 +53,20 @@ module Unobservable
     private
     
     
-    def define_event(name)
+    def define_event(name, args = {})
+      args = {create_method: false}.merge(args)
       name = name.to_sym
+      
+      if args[:create_method]
+        define_method name do
+          return event(name)
+        end
+      end
       
       @unobservable_instance_events ||= Set.new
       if @unobservable_instance_events.include? name
         return false
       else
-        define_method name do
-          return event(name)
-        end
         @unobservable_instance_events.add name
         return true
       end
@@ -111,8 +115,8 @@ module Unobservable
     end
 
     # Defines an event directly on the object.
-    def define_singleton_event(name)
-      self.singleton_class.send(:define_event, name)
+    def define_singleton_event(name, args = {})
+      self.singleton_class.send(:define_event, name, args)
     end
 
     # Obtains the names of the events that are supported by this object.  If

@@ -53,10 +53,23 @@ module Unobservable
         obj.define_singleton_event(:foo).should be_false
       end
       
-      it "creates an instance method that shares the same name as the event" do
+      
+      it "creates a corresponding instance method when :create_method => true" do
+        obj.methods.should_not include(:quux)
+        obj.define_singleton_event :quux, :create_method => true
+        obj.methods.should include(:quux)
+      end
+      
+      it "does not create a corresponding instance method when :create_method => false" do
+        obj.methods.should_not include(:quux)
+        obj.define_singleton_event :quux, :create_method => false
+        obj.methods.should_not include(:quux)
+      end
+      
+      it "does not create a corresponding instance method by default" do
         obj.methods.should_not include(:quux)
         obj.define_singleton_event :quux
-        obj.methods.should include(:quux)
+        obj.methods.should_not include(:quux)
       end
       
     end

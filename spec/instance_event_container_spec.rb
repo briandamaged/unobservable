@@ -73,10 +73,22 @@ shared_examples_for "instance event container" do
         c.instance_events.should include(:quux)
       end
       
-      it "creates an instance method that shares the same name as the event" do
+      it "creates a corresponding instance method when :create_method => true" do
+        c.instance_methods.should_not include(:quux)
+        c.send(:define_event, :quux, :create_method => true)
+        c.instance_methods.should include(:quux)
+      end
+      
+      it "does not create a corresponding instance method when :create_method => false" do
+        c.instance_methods.should_not include(:quux)
+        c.send(:define_event, :quux, :create_method => false)
+        c.instance_methods.should_not include(:quux)
+      end
+      
+      it "does not create any instance method by default" do
         c.instance_methods.should_not include(:quux)
         c.send(:define_event, :quux)
-        c.instance_methods.should include(:quux)
+        c.instance_methods.should_not include(:quux)
       end
       
     end
