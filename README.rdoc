@@ -183,6 +183,50 @@ You can retrieve a complete listing of the events supported by an object by invo
    > x.events
    => [:clicked, :double_clicked]
 
+
+=== Registering Event Handlers
+
+Event Handlers can be registered to an Event by calling Unobservable::Event#register (or its alias: Unobservable::Event#add ).  For convenience, Unobservable provides 3 different ways to specify Event Handlers:
+
+==== Using Blocks
+
+If the Event Handler only needs to be used in one place, then you can specify it as a Block:
+
+   b = Button.new
+   
+   # Specify the Event Handler as a Block
+   b.clicked.register {|x, y| puts "You clicked: #{x}, #{y}"}
+
+==== Using Procs
+
+If you want to reuse the same Event Handler multiple times, then you can specify it as a Proc:
+
+   p = Proc.new {|x, y| puts "STOP POKING #{x}, #{y}!!!"}
+   
+   b = Button.new
+   
+   b.clicked.register p
+   b.double_clicked.register p
+   
+
+==== Using instance, :method_name
+
+If you want the Event Handler to call a specific method on an instance of an Object, then you
+can specify the instance and the name of the method:
+
+   class Foo
+   
+     def handle_click(x, y)
+       puts "You clicked: #{x}, #{y}"
+     end
+   end
+   
+   f = Foo.new
+   
+   b = Button.new
+   
+   b.clicked.register f, :handle_click
+
 == Copyright
 
 Copyright (c) 2012 Brian Lauber. See LICENSE.txt for
