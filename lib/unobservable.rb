@@ -196,6 +196,8 @@ module Unobservable
       @handlers << h
       return h
     end
+    
+    alias :add :register
 
 
     # Removes a single instance of the specified event handler
@@ -213,6 +215,7 @@ module Unobservable
       end
     end
 
+    alias :remove :unregister
 
     
     # Pass the specific arguments / block to all of the
