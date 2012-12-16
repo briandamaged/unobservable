@@ -42,6 +42,30 @@ module Unobservable
   end
 
 
+  # There are 3 ways for end-users to provide an event handler:
+  #
+  # 1. They can pass an object that has a #call method
+  # 2. They can provide an object and the name of a method to invoke
+  # 3. They can pass in a block
+  def self.handler_for(*args, &block)
+    if block
+      return block
+    elsif args.size == 1
+      candidate = args[0]
+      if candidate.respond_to?(:to_proc)
+        return candidate.to_proc
+      else
+        raise ArgumentError, "The argument does not respond to the #to_proc method"
+      end
+    elsif args.size == 2
+      return args[0].method(args[1])
+    end
+
+    raise ArgumentError, "Unable to create an event handler using the given arguments"
+  end
+
+
+
   # This module is a mixin that provides support for "instance events".
   module ModuleSupport
     
@@ -167,32 +191,12 @@ module Unobservable
       @handlers = []
     end
 
-    # There are 3 ways for end-users to provide an event handler:
-    #
-    # 1. They can pass an object that has a #call method
-    # 2. They can provide an object and the name of a method to invoke
-    # 3. They can pass in a block
-    def handler_for(*args, &block)
-      if block
-        return block
-      elsif args.size == 1
-        candidate = args[0]
-        if candidate.respond_to?(:to_proc)
-          return candidate.to_proc
-        else
-          raise ArgumentError, "The argument does not respond to the #to_proc method"
-        end
-      elsif args.size == 2
-        return args[0].method(args[1])
-      end
 
-      raise ArgumentError, "Unable to create an event handler using the given arguments"
-    end
 
     # Registers the given event handler so that it will be
     # invoked when the event is raised.
     def register(*args, &block)
-      h = handler_for(*args, &block)
+      h = Unobservable.handler_for(*args, &block)
       @handlers << h
       return h
     end
@@ -205,7 +209,7 @@ module Unobservable
     # registered the same event handler 3 times, then you will
     # need to unregister it 3 times as well.
     def unregister(*args, &block)
-      h = handler_for(*args, &block)
+      h = Unobservable.handler_for(*args, &block)
       index = @handlers.index(h)
       if index
         @handlers.slice!(index)
