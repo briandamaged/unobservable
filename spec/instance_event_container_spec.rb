@@ -29,6 +29,8 @@ shared_examples_for "instance event container" do
         attr_event :three, :four
       end
     end
+    
+    let(:c){ described_class.new{ include Unobservable::Support } }
 
     it "does not have any events by default" do
       c = described_class.new { include Unobservable::Support }
@@ -53,10 +55,8 @@ shared_examples_for "instance event container" do
     end
 
 
-    context "#define_event" do
-      
-      let(:c){ described_class.new{ include Unobservable::Support } }
-      
+    describe "#define_event" do
+            
       it "returns true if the specified event did not already exist" do
         c.send(:define_event, :quux).should be_true
       end
@@ -89,6 +89,29 @@ shared_examples_for "instance event container" do
         c.instance_methods.should_not include(:quux)
         c.send(:define_event, :quux)
         c.instance_methods.should_not include(:quux)
+      end
+      
+    end
+    
+    
+    describe "#attr_event" do
+      
+      it "defines several events at once" do
+        c.instance_events.should_not include(:one, :two, :three)
+        c.send(:attr_event, :one, :two, :three)
+        c.instance_events.should include(:one, :two, :three)
+      end
+      
+      it "creates corresponding instance methods when :create_method => true" do
+        c.instance_methods.should_not include(:one, :two, :three)
+        c.send(:attr_event, :one, :two, :three, :create_method => true)
+        c.instance_methods.should include(:one, :two, :three)
+      end
+      
+      it "does not create corresponding instance methods when :create_method => false" do
+        c.instance_methods.should_not include(:one, :two, :three)
+        c.send(:attr_event, :one, :two, :three, :create_method => false)
+        c.instance_methods.should_not include(:one, :two, :three)
       end
       
     end

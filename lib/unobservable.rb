@@ -76,7 +76,8 @@ module Unobservable
     # This helper method is similar to attr_reader and attr_accessor.  It allows
     # for instance events to be declared inside the body of the class.
     def attr_event(*names)
-      names.each {|n| define_event(n) }
+      args = (names[-1].is_a? Hash) ? names.pop : {}
+      names.each {|n| define_event(n, args) }
       return nil
     end
 
