@@ -215,7 +215,8 @@ module Unobservable
       end
     end
 
-    alias :remove :unregister
+
+    alias :delete :unregister
 
     
     # Pass the specific arguments / block to all of the
