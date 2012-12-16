@@ -66,10 +66,10 @@ module Unobservable
         obj.methods.should_not include(:quux)
       end
       
-      it "does not create a corresponding instance method by default" do
+      it "creates a corresponding instance method by default" do
         obj.methods.should_not include(:quux)
         obj.define_singleton_event :quux
-        obj.methods.should_not include(:quux)
+        obj.methods.should include(:quux)
       end
       
     end

@@ -54,7 +54,7 @@ module Unobservable
     
     
     def define_event(name, args = {})
-      args = {create_method: false}.merge(args)
+      args = {:create_method => true}.merge(args)
       name = name.to_sym
       
       if args[:create_method]

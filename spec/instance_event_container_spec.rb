@@ -85,10 +85,10 @@ shared_examples_for "instance event container" do
         c.instance_methods.should_not include(:quux)
       end
       
-      it "does not create any instance method by default" do
+      it "creates corresponding instance method by default" do
         c.instance_methods.should_not include(:quux)
         c.send(:define_event, :quux)
-        c.instance_methods.should_not include(:quux)
+        c.instance_methods.should include(:quux)
       end
       
     end
