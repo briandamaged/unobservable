@@ -115,6 +115,21 @@ shared_examples_for "instance event container" do
       end
       
     end
+    
+    
+    describe "#event_defined?" do
+      
+      it "returns false if the event is not defined" do
+        instance_event_container.event_defined?(:nope).should be_false
+        instance_event_container.event_defined?("nope").should be_false
+      end
+      
+      it "returns true if the event is defined" do
+        instance_event_container.event_defined?(:one).should be_true
+        instance_event_container.event_defined?("one").should be_true
+      end
+      
+    end
 
   end
   

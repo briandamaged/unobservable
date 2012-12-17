@@ -98,6 +98,31 @@ module Unobservable
     end
     
     
+    describe "#has_event?" do
+      
+      it "returns false if the object does not define the event" do
+        obj.has_event?(:nope).should be_false
+        obj.has_event?("nope").should be_false
+      end
+      
+      it "returns true if the object has an instance event w/ the specified name" do
+        obj.has_event?(:foo).should be_true
+        obj.has_event?("foo").should be_true
+      end
+      
+      it "returns true if the object has a singleton event w/ the specified name" do
+        obj.has_event?(:yup).should be_false
+        obj.has_event?("yup").should be_false
+        
+        obj.define_singleton_event :yup
+        
+        obj.has_event?(:yup).should be_true
+        obj.has_event?("yup").should be_true
+      end
+      
+    end
+    
+    
     describe "#raise_event" do
       
       it "raises a NameError when the specified event is not defined" do

@@ -73,10 +73,14 @@ module Unobservable
       Unobservable.instance_events_for(self, all)
     end
 
+    def event_defined?(name)
+      Unobservable.instance_events_for(self, true).include? name.to_sym
+    end
 
     private
     
-    
+    # Returns true if the instance event is defined.
+    # Returns false otherwise.
     def define_event(name, args = {})
       args = {:create_method => true}.merge(args)
       name = name.to_sym
@@ -166,6 +170,13 @@ module Unobservable
         end
       end
       return e
+    end
+    
+    
+    # Returns true if the object defines an event w/ the specified
+    # name.  Returns false otherwise.
+    def has_event?(name)
+      return self.events(true).include? name.to_sym
     end
 
     private
