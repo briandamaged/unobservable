@@ -243,11 +243,7 @@ module Unobservable
       else
         # TODO: Add some form of error-handling
         @handlers.each do |h|
-          begin
-            h.call(*args, &block)
-          rescue Exception
-            # TODO: Should probably log when this happens
-          end
+          h.call(*args, &block)
         end
 
         return true
